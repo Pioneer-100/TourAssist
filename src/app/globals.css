@@ -528,8 +528,9 @@ body::after {
    Discover Page
    ======================== */
 .discover-page {
-    min-height: 100vh;
-    padding-top: 4.2rem;
+    height: 100vh;
+    overflow: hidden;
+    padding-top: 5rem;
     display: flex;
     flex-direction: column;
 }
@@ -593,7 +594,8 @@ body::after {
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
-    padding: 0 2rem 2rem;
+    padding: 0 2rem 1.5rem;
+    overflow: hidden;
 }
 
 .discover-sidebar {
@@ -601,7 +603,7 @@ body::after {
     flex-shrink: 0;
     overflow-y: auto;
     padding-right: 2rem;
-    max-height: calc(100vh - 10rem);
+    height: 100%;
     scrollbar-width: thin;
     scrollbar-color: var(--glass-border) transparent;
 }
@@ -629,9 +631,8 @@ body::after {
 
 .discover-map-pane {
     flex: 1;
-    position: sticky;
-    top: 4.8rem;
-    height: calc(100vh - 6.2rem);
+    position: relative;
+    height: 100%;
     border-radius: 1.5rem;
     overflow: hidden;
     border: 1px solid var(--glass-border);

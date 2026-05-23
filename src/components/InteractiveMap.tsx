@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Experience } from '../data/mockExperiences';
+
+type MapMode = 'satellite' | 'streets' | 'dark';
 
 interface InteractiveMapProps {
   experiences: Experience[];
@@ -63,6 +65,10 @@ export default function InteractiveMap({
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
   const routeLineRef = useRef<L.Polyline | null>(null);
+  
+  // Custom Dynamic Base Layer states
+  const [mapMode, setMapMode] = useState<MapMode>('satellite');
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
 
   // 1. Initialize map on mount
   useEffect(() => {
@@ -78,10 +84,14 @@ export default function InteractiveMap({
 
     mapRef.current = map;
 
-    // CartoDB Dark Matter tile layer
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 20
+    // High-resolution Esri World Imagery (Satellite) by default
+    const satelliteUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    const initialTile = L.tileLayer(satelliteUrl, {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri'
     }).addTo(map);
+
+    tileLayerRef.current = initialTile;
 
     // Subtle scale control
     L.control.scale({ position: 'bottomright' }).addTo(map);
@@ -112,7 +122,36 @@ export default function InteractiveMap({
     };
   }, [onToggleItinerary]);
 
-  // 2. Add / Update markers when experiences, activeExperienceId, itinerary, or isScheduleMode changes
+  // 2. Dynamic Hot-Swapping Base Layers (Satellite <-> Streets <-> Dark Mode)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !tileLayerRef.current) return;
+
+    tileLayerRef.current.remove();
+
+    const satelliteUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    const streetsUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const darkUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+
+    if (mapMode === 'satellite') {
+      tileLayerRef.current = L.tileLayer(satelliteUrl, {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri'
+      }).addTo(map);
+    } else if (mapMode === 'streets') {
+      tileLayerRef.current = L.tileLayer(streetsUrl, {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+    } else {
+      tileLayerRef.current = L.tileLayer(darkUrl, {
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+      }).addTo(map);
+    }
+  }, [mapMode]);
+
+  // 3. Add / Update markers when experiences, activeExperienceId, itinerary, or isScheduleMode changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -203,7 +242,7 @@ export default function InteractiveMap({
     }
   }, [experiences, activeExperienceId, itinerary, isScheduleMode, onSelectExperience]);
 
-  // 3. Draw Route Polyline when Itinerary changes
+  // 4. Draw Route Polyline when Itinerary changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -230,7 +269,7 @@ export default function InteractiveMap({
     }
   }, [itinerary]);
 
-  // 4. Pan/Fly map and open popup when activeExperienceId changes externally
+  // 5. Pan/Fly map and open popup when activeExperienceId changes externally
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !activeExperienceId) return;
@@ -260,10 +299,76 @@ export default function InteractiveMap({
     }
   }, [activeExperienceId]);
 
+  const switcherModes: { id: MapMode; label: string; icon: string }[] = [
+    { id: 'satellite', label: 'Satellite', icon: '🛰️' },
+    { id: 'streets', label: 'Streets', icon: '🗺️' },
+    { id: 'dark', label: 'Dark Mode', icon: '🌌' }
+  ];
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       {/* Actual Map Container */}
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%', outline: 'none' }} />
+
+      {/* Floating Glassmorphic Base Layer Map Switcher Capsule */}
+      <div 
+        className="map-layer-switcher glass-panel"
+        style={{
+          position: 'absolute',
+          top: '1.5rem',
+          right: '1.5rem',
+          zIndex: 1000,
+          background: 'rgba(9, 14, 23, 0.85)',
+          border: '1px solid var(--glass-border)',
+          borderRadius: '2rem',
+          padding: '0.3rem',
+          display: 'flex',
+          gap: '0.25rem',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+          pointerEvents: 'auto',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      >
+        {switcherModes.map(mode => {
+          const isActive = mapMode === mode.id;
+          return (
+            <button
+              key={mode.id}
+              onClick={() => setMapMode(mode.id)}
+              style={{
+                background: isActive ? 'var(--gradient-primary)' : 'transparent',
+                border: 'none',
+                borderRadius: '1.5rem',
+                padding: '0.45rem 1rem',
+                fontSize: '0.74rem',
+                fontWeight: 600,
+                color: isActive ? '#ffffff' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                outline: 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <span>{mode.icon}</span>
+              <span>{mode.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
       {/* Sleek Floating Map Controls overlay */}
       <div className="map-control-overlay">
