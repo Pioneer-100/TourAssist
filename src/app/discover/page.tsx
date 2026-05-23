@@ -3,6 +3,7 @@
 import React, { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ExperienceCard from '../../components/ExperienceCard';
+import ExperienceDetailDrawer from '../../components/ExperienceDetailDrawer';
 import { Experience } from '../../data/mockExperiences';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -78,6 +79,9 @@ function DiscoverContent() {
   const [showItineraryPreview, setShowItineraryPreview] = useState<boolean>(false);
   const previewTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Experience Detail Drawer state
+  const [selectedDetailExperience, setSelectedDetailExperience] = useState<Experience | null>(null);
+
   // Cleanup preview timer on unmount
   useEffect(() => {
     return () => {
@@ -121,6 +125,7 @@ function DiscoverContent() {
     setIsScheduleMode(false);
     setIsItineraryOpen(false);
     setShowItineraryPreview(false);
+    setSelectedDetailExperience(null);
     if (previewTimerRef.current) {
       clearTimeout(previewTimerRef.current);
     }
@@ -306,7 +311,10 @@ function DiscoverContent() {
                       isActive={activeExperienceId === experience.id}
                       isInItinerary={itinerary.some(item => item.id === experience.id)}
                       timeSlotLabel={isScheduleMode ? timeSlotDisplay : undefined}
-                      onClick={() => setActiveExperienceId(experience.id)}
+                      onClick={() => {
+                        setActiveExperienceId(experience.id);
+                        setSelectedDetailExperience(experience);
+                      }}
                       onMouseEnter={() => setActiveExperienceId(experience.id)}
                       onToggleItinerary={() => handleToggleItinerary(experience.id)}
                     />
@@ -336,6 +344,12 @@ function DiscoverContent() {
             itinerary={itinerary}
             isScheduleMode={isScheduleMode}
             onToggleItinerary={handleToggleItinerary}
+            onViewDetails={(id) => {
+              const exp = experiences.find(item => item.id === id);
+              if (exp) {
+                setSelectedDetailExperience(exp);
+              }
+            }}
           />
 
           {/* Floating Route Drawer Panel */}
@@ -406,6 +420,19 @@ function DiscoverContent() {
         </div>
         
       </div>
+
+      {/* Immersive Place Detail Drawer */}
+      <ExperienceDetailDrawer 
+        experience={selectedDetailExperience}
+        isOpen={selectedDetailExperience !== null}
+        onClose={() => setSelectedDetailExperience(null)}
+        isInItinerary={selectedDetailExperience ? itinerary.some(item => item.id === selectedDetailExperience.id) : false}
+        onToggleItinerary={() => {
+          if (selectedDetailExperience) {
+            handleToggleItinerary(selectedDetailExperience.id);
+          }
+        }}
+      />
     </div>
   );
 }

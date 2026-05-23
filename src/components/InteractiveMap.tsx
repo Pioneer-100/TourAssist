@@ -13,6 +13,7 @@ interface InteractiveMapProps {
   itinerary: Experience[];
   isScheduleMode: boolean;
   onToggleItinerary: (id: string) => void;
+  onViewDetails: (id: string) => void;
 }
 
 // Fallback coordinate dictionary in case database places lack coordinates
@@ -59,7 +60,8 @@ export default function InteractiveMap({
   onSelectExperience,
   itinerary,
   isScheduleMode,
-  onToggleItinerary
+  onToggleItinerary,
+  onViewDetails
 }: InteractiveMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -74,6 +76,11 @@ export default function InteractiveMap({
   useEffect(() => {
     onToggleItineraryRef.current = onToggleItinerary;
   }, [onToggleItinerary]);
+
+  const onViewDetailsRef = useRef(onViewDetails);
+  useEffect(() => {
+    onViewDetailsRef.current = onViewDetails;
+  }, [onViewDetails]);
 
   // 1. Initialize map on mount
   useEffect(() => {
@@ -113,6 +120,18 @@ export default function InteractiveMap({
           btn.addEventListener('click', (ev) => {
             ev.stopPropagation();
             onToggleItineraryRef.current(experienceId);
+            map.closePopup();
+          });
+        }
+      }
+
+      const detailBtn = popupNode.querySelector('.popup-details-btn');
+      if (detailBtn) {
+        const experienceId = detailBtn.getAttribute('data-id');
+        if (experienceId) {
+          detailBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            onViewDetailsRef.current(experienceId);
             map.closePopup();
           });
         }
@@ -207,9 +226,14 @@ export default function InteractiveMap({
             ${exp.type}
           </span>
           <p>${exp.description.substring(0, 75)}...</p>
-          <button class="popup-itinerary-btn ${isInItin ? 'added' : ''}" data-id="${exp.id}">
-            ${isInItin ? '✓ In Itinerary' : '+ Add to Itinerary'}
-          </button>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+            <button class="popup-itinerary-btn ${isInItin ? 'added' : ''}" data-id="${exp.id}" style="flex: 1; padding: 0.4rem 0.5rem;">
+              ${isInItin ? '✓ In Itinerary' : '+ Add to Itinerary'}
+            </button>
+            <button class="popup-details-btn" data-id="${exp.id}" style="padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; color: #fff; cursor: pointer; font-size: 0.72rem; font-weight: 600; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+              ℹ️ Detail
+            </button>
+          </div>
         </div>
       `;
 
