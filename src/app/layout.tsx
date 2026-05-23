@@ -13,7 +13,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <div className="bg-orb bg-orb-1"></div>
+        <div className="bg-orb bg-orb-2"></div>
+        <div className="bg-orb bg-orb-3"></div>
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap');
+@import "leaflet/dist/leaflet.css";
 
 :root {
     --bg-main: #090e17;
@@ -151,24 +152,25 @@ nav a:hover {
 }
 
 .hero-bg {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     z-index: -2;
-    filter: brightness(0.6);
+    filter: brightness(0.5);
 }
 
 .hero-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: radial-gradient(circle at center, transparent 0%, var(--bg-main) 100%);
     z-index: -1;
+    opacity: 0.8;
 }
 
 .hero-content {
@@ -234,7 +236,7 @@ nav a:hover {
 /* How It Works */
 .how-it-works {
     padding: 8rem 0;
-    background: var(--bg-main);
+    background: transparent;
     position: relative;
 }
 
@@ -294,7 +296,7 @@ nav a:hover {
 /* Features */
 .features {
     padding: 8rem 0;
-    background: var(--bg-secondary);
+    background: transparent;
     border-top: 1px solid var(--glass-border);
     border-bottom: 1px solid var(--glass-border);
 }
@@ -374,7 +376,7 @@ nav a:hover {
 
 /* Footer */
 footer {
-    background: var(--bg-main);
+    background: transparent;
     padding: 6rem 0 3rem;
 }
 
@@ -527,21 +529,61 @@ body::after {
    ======================== */
 .discover-page {
     min-height: 100vh;
-    padding-top: 5rem;
+    padding-top: 4.2rem;
     display: flex;
     flex-direction: column;
 }
 
 .discover-header {
-    padding: 2.5rem 2rem;
+    padding: 1.25rem 2rem 0.5rem;
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
 }
 
 .discover-header h1 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.discover-header p.query-text {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+.floating-search-btn {
+    position: fixed;
+    top: 6.5rem;
+    left: 2rem;
+    z-index: 1100;
+    width: 3.5rem;
+    height: 3.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.floating-search-btn:hover {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+@media (max-width: 900px) {
+    .floating-search-btn {
+        top: auto;
+        bottom: 2rem;
+        left: 2rem;
+    }
 }
 
 .discover-layout {
@@ -588,8 +630,8 @@ body::after {
 .discover-map-pane {
     flex: 1;
     position: sticky;
-    top: 5.5rem;
-    height: calc(100vh - 7.5rem);
+    top: 4.8rem;
+    height: calc(100vh - 6.2rem);
     border-radius: 1.5rem;
     overflow: hidden;
     border: 1px solid var(--glass-border);
@@ -795,7 +837,7 @@ body::after {
         position: relative;
         top: 0;
         height: 400px;
-        margin-top: 2rem;
+        margin-top: 0.5rem;
     }
 }
 
@@ -825,3 +867,819 @@ body::after {
         font-size: 1.6rem;
     }
 }
+
+/* ========================
+   Leaflet Custom Dark Map Styles
+   ======================== */
+
+/* Custom pulsing map markers */
+.custom-map-marker {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.marker-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(19, 27, 44, 0.9);
+    border: 2px solid var(--marker-color, var(--accent-primary));
+    box-shadow: 0 0 15px var(--marker-glow, var(--accent-glow));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+}
+
+.marker-pulse {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--marker-glow, var(--accent-glow));
+    opacity: 0.4;
+    z-index: 1;
+    animation: marker-pulse-anim 2.5s infinite ease-out;
+    pointer-events: none;
+}
+
+/* Specific Marker Theme Variables */
+.marker-popular {
+    --marker-color: #0ea5e9;
+    --marker-glow: rgba(14, 165, 233, 0.5);
+}
+
+.marker-hidden-gem {
+    --marker-color: #a855f7;
+    --marker-glow: rgba(168, 85, 247, 0.5);
+}
+
+.marker-local-favorite {
+    --marker-color: #10b981;
+    --marker-glow: rgba(16, 185, 129, 0.5);
+}
+
+/* Active Highlight Hover State */
+.custom-map-marker.active .marker-dot,
+.custom-map-marker:hover .marker-dot {
+    transform: scale(1.2) !important;
+    box-shadow: 0 0 25px var(--marker-color) !important;
+    border-color: #ffffff !important;
+    z-index: 10 !important;
+}
+
+.custom-map-marker.active .marker-pulse {
+    animation-duration: 1.2s;
+    opacity: 0.6;
+}
+
+@keyframes marker-pulse-anim {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(2.4);
+        opacity: 0;
+    }
+}
+
+/* Custom Glassmorphic Leaflet Popups */
+.custom-map-popup .leaflet-popup-content-wrapper {
+    background: rgba(13, 22, 38, 0.75) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    color: var(--text-primary) !important;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.custom-map-popup .leaflet-popup-tip {
+    background: rgba(13, 22, 38, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+}
+
+/* Float map controls styling */
+.map-control-overlay {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 1000;
+    background: rgba(13, 22, 38, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.map-control-overlay span {
+    color: var(--text-secondary);
+}
+
+/* Active card highlight state */
+.experience-card.active-card {
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.15) !important;
+    background: rgba(14, 165, 233, 0.03) !important;
+    transform: translateY(-3px);
+}
+
+/* =======================================
+   Advanced Route, Filtering & Timeline CSS
+   ======================================= */
+
+/* 1. Leaflet Route Flowing Polyline */
+.flowing-route-line {
+    animation: route-flow-anim 16s linear infinite;
+    filter: drop-shadow(0 0 6px var(--accent-glow));
+    stroke-dashoffset: 0;
+}
+
+@keyframes route-flow-anim {
+    from {
+        stroke-dashoffset: 240;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* 2. Experience Card Itinerary Action Triggers */
+.card-itinerary-btn {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.card-itinerary-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.card-itinerary-btn.added {
+    background: var(--gradient-primary);
+    border-color: var(--accent-primary);
+    color: #ffffff;
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* 3. Card Timelines Slots Badges */
+.timeslot-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 0.3rem 0.9rem;
+    border-radius: 2rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: rgba(9, 14, 23, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--accent-secondary);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 4. Timeline Schedule Header Separators */
+.schedule-timeline-header {
+    position: relative;
+    padding-left: 2rem;
+    margin: 2.5rem 0 1.2rem 0;
+    display: flex;
+    align-items: center;
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.schedule-timeline-header::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: -2.5rem;
+    bottom: -2.5rem;
+    width: 2px;
+    background: linear-gradient(to bottom, rgba(14, 165, 233, 0.05) 0%, rgba(14, 165, 233, 0.2) 50%, rgba(14, 165, 233, 0.05) 100%);
+}
+
+.timeline-dot {
+    position: absolute;
+    left: 3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    box-shadow: 0 0 10px var(--accent-glow);
+    border: 2px solid #ffffff;
+}
+
+.schedule-timeline-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-secondary);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: var(--font-heading);
+}
+
+/* 5. Schedule Toggle Button styling */
+.schedule-toggle-btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: 2rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    outline: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.schedule-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.schedule-toggle-btn.active {
+    background: var(--gradient-primary);
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 15px var(--accent-glow);
+    color: #ffffff;
+}
+
+/* 6. Sequential Numbers in Map markers */
+.custom-map-marker.schedule-style .marker-dot {
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #ffffff;
+    font-family: var(--font-heading);
+    background: var(--marker-color);
+}
+
+.marker-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 7. Popup Itinerary Button styling */
+.popup-itinerary-btn {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    background: var(--gradient-primary);
+    color: #ffffff;
+    border: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px var(--accent-glow);
+    margin-top: 0.5rem;
+}
+
+.popup-itinerary-btn:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.popup-itinerary-btn.added {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    box-shadow: none;
+}
+
+.popup-itinerary-btn.added:hover {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* 8. Floating Route Drawer Overlay */
+.itinerary-drawer {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    z-index: 1000;
+    background: rgba(9, 14, 23, 0.85) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 1.25rem !important;
+    padding: 1.25rem !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75) !important;
+    display: flex;
+    flex-direction: column;
+    max-height: 380px;
+    pointer-events: auto;
+    animation: drawer-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes drawer-slide-up {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.itinerary-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0.75rem;
+}
+
+.itinerary-drawer-header h3 {
+    font-size: 1.1rem;
+    margin: 0 0 0.2rem 0;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+}
+
+.itinerary-drawer-header span {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.drawer-clear-btn {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.drawer-clear-btn:hover {
+    opacity: 0.8;
+}
+
+.itinerary-drawer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    overflow-y: auto;
+    max-height: 180px;
+    margin-bottom: 1.25rem;
+    padding-right: 0.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+.itinerary-drawer-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.itinerary-drawer-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+}
+
+.itinerary-drawer-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.itinerary-drawer-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(2px);
+}
+
+.drawer-item-index {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px var(--accent-glow);
+}
+
+.drawer-item-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.drawer-item-details h4 {
+    font-size: 0.85rem;
+    margin: 0 0 0.1rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+}
+
+.drawer-item-details span {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.drawer-item-remove {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.2s ease;
+}
+
+.drawer-item-remove:hover {
+    color: #ef4444;
+}
+
+/* 9. Leaflet Popup Cleanups for Route Buttons */
+.leaflet-popup-content h4 {
+    margin: 0 0 0.3rem 0;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+}
+
+.leaflet-popup-content p {
+    margin: 0 0 0.6rem 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.animate-fade-in {
+    animation: fade-in-animation 0.3s ease-out forwards;
+}
+
+@keyframes fade-in-animation {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (min-width: 901px) {
+    .itinerary-drawer {
+        width: 320px;
+        left: auto;
+        right: 1.5rem;
+        bottom: 1.5rem;
+        max-height: 400px;
+    }
+}
+
+/* ==========================================================================
+   TourAssist Premium Discover Page Aesthetic Overhaul Styling
+   ========================================================================== */
+
+/* 1. Floating Pill Navigation Navbar */
+.discover-navbar {
+    position: fixed !important;
+    top: 1.5rem !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 4rem) !important;
+    max-width: 1200px !important;
+    border-radius: 3rem !important;
+    background: rgba(9, 14, 23, 0.7) !important;
+    backdrop-filter: blur(25px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    padding: 0.8rem 2.2rem !important;
+    z-index: 1100 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.discover-navbar .header-inner {
+    padding: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* Offset floating search button to sit below navigation pill */
+.floating-search-btn {
+    top: 7.5rem !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+}
+
+/* Navbar Links Hover Gradient expansion */
+.discover-navbar nav a {
+    position: relative;
+    padding: 0.25rem 0;
+}
+
+.discover-navbar nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.discover-navbar nav a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* Itinerary count pulsing animation */
+.discover-navbar button.btn-primary {
+    position: relative;
+    overflow: visible;
+}
+
+.discover-navbar button.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent-secondary);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent-secondary);
+    animation: marker-pulse-anim 1.5s infinite;
+    display: none;
+}
+
+body:has(.itinerary-drawer) .discover-navbar button.btn-primary::after {
+    display: block; /* Pulse only when itinerary has stops */
+}
+
+/* 2. Immersive AI Scanner Radar Status */
+.discover-results-header.glass-panel {
+    padding: 0.85rem 1.4rem !important;
+    background: rgba(14, 165, 233, 0.02) !important;
+    border-color: rgba(14, 165, 233, 0.12) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    margin-bottom: 1.8rem !important;
+    border-radius: 0.85rem !important;
+    box-shadow: inset 0 0 15px rgba(14, 165, 233, 0.04) !important;
+    flex-direction: row !important;
+}
+
+.radar-scanner {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+.radar-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    box-shadow: 0 0 8px var(--accent-primary);
+    z-index: 2;
+    position: absolute;
+    inset: 0;
+}
+
+.radar-ring {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-primary);
+    opacity: 0.4;
+    animation: radar-ping-anim 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    pointer-events: none;
+}
+
+@keyframes radar-ping-anim {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(2.6);
+        opacity: 0;
+    }
+}
+
+.radar-status {
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    letter-spacing: 0.2px;
+}
+
+.radar-status strong {
+    color: var(--accent-secondary) !important;
+    font-weight: 700 !important;
+}
+
+/* 3. High-End Experience Cards Visual Refinements */
+.experience-card {
+    border: 1px solid var(--glass-border) !important;
+    background: rgba(19, 27, 44, 0.35) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.experience-card:hover {
+    transform: translateY(-8px) scale(1.005) !important;
+    border-color: rgba(14, 165, 233, 0.3) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(14, 165, 233, 0.12) !important;
+    background: rgba(19, 27, 44, 0.55) !important;
+}
+
+.experience-card-image {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Custom image gloss/glare overlay effect */
+.experience-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.03), transparent);
+    transform: skewX(-25deg);
+    transition: 0.75s ease;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.experience-card:hover::before {
+    left: 150%;
+}
+
+/* Distinct rich gradients for badges */
+.badge-hidden-gem {
+    background: linear-gradient(135deg, #6d28d9, #a855f7) !important;
+    border: 1px solid rgba(168, 85, 247, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(109, 40, 217, 0.4) !important;
+}
+
+.badge-popular {
+    background: linear-gradient(135deg, #0284c7, #38bdf8) !important;
+    border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4) !important;
+}
+
+.badge-local-favorite {
+    background: linear-gradient(135deg, #047857, #10b981) !important;
+    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(4, 120, 87, 0.4) !important;
+}
+
+/* Why It Matches styling */
+.experience-card-body .match-reasoning {
+    background: rgba(14, 165, 233, 0.05) !important;
+    border-left: 3px solid var(--accent-primary) !important;
+    border-radius: 0 0.5rem 0.5rem 0 !important;
+    box-shadow: inset 1px 0 0 rgba(14, 165, 233, 0.05) !important;
+}
+
+.match-reasoning p {
+    font-size: 0.82rem !important;
+    line-height: 1.55 !important;
+}
+
+/* 4. Neon Timeline Thread & Slot Badges */
+.discover-sidebar {
+    position: relative;
+}
+
+/* Pulsing neon thread line down the sidebar */
+.discover-sidebar::after {
+    content: '';
+    position: absolute;
+    left: 2.38rem;
+    top: 13.5rem;
+    bottom: 3.5rem;
+    width: 2px;
+    background: linear-gradient(to bottom, 
+        rgba(14, 165, 233, 0) 0%, 
+        rgba(14, 165, 233, 0.25) 10%, 
+        rgba(168, 85, 247, 0.25) 50%, 
+        rgba(16, 185, 129, 0.25) 90%, 
+        rgba(16, 185, 129, 0) 100%);
+    z-index: 1;
+    pointer-events: none;
+    display: none;
+}
+
+body:has(.schedule-timeline-header) .discover-sidebar::after {
+    display: block; /* Active only in schedule mode */
+}
+
+.schedule-timeline-header {
+    z-index: 2;
+    background: rgba(19, 27, 44, 0.6) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    padding: 0.5rem 1.25rem 0.5rem 2.25rem !important;
+    border-radius: 2rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+    max-width: fit-content;
+    margin-left: 0.75rem;
+    position: relative;
+}
+
+.schedule-timeline-header::before {
+    display: none !important; /* Overriding basic line */
+}
+
+.timeline-dot {
+    left: 0.85rem !important;
+    width: 12px !important;
+    height: 12px !important;
+    background: #ffffff !important;
+    border: 2px solid var(--accent-primary) !important;
+    box-shadow: 0 0 12px var(--accent-primary) !important;
+}
+
+.schedule-timeline-header h3 {
+    font-size: 0.82rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.5px !important;
+    font-family: var(--font-heading) !important;
+}
+
+.timeslot-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    background: rgba(9, 14, 23, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--accent-secondary) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
+

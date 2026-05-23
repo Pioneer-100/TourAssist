@@ -5,7 +5,9 @@
     "category": "Dining & Views",
     "description": "Perched 120m above the Zambezi River, offering spectacular views of the Batoka Gorge and Victoria Falls Bridge.",
     "tags": ["view", "relaxing", "food", "iconic"],
-    "label": "popular"
+    "label": "popular",
+    "latitude": -17.9241,
+    "longitude": 25.8496
   },
   {
     "id": 2,
@@ -13,7 +15,9 @@
     "category": "Culture",
     "description": "Explore the oldest suburb in Victoria Falls. Meet locals, visit markets, and see the authentic side of life here.",
     "tags": ["culture", "local", "history", "authentic"],
-    "label": "local favorite"
+    "label": "local favorite",
+    "latitude": -17.9355,
+    "longitude": 25.8280
   },
   {
     "id": 3,
@@ -21,7 +25,9 @@
     "category": "Adventure",
     "description": "A natural infinity pool right on the edge of the falls. Accessible only during low water season for the ultimate thrill.",
     "tags": ["adventure", "thrill", "unique", "nature"],
-    "label": "hidden gem"
+    "label": "hidden gem",
+    "latitude": -17.9276,
+    "longitude": 25.8617
   },
   {
     "id": 4,
@@ -29,7 +35,9 @@
     "category": "Experience",
     "description": "A feast of local cuisine accompanied by traditional drumming, dancing, and storytelling.",
     "tags": ["food", "culture", "fun", "family"],
-    "label": "popular"
+    "label": "popular",
+    "latitude": -17.9158,
+    "longitude": 25.8202
   },
   {
     "id": 5,
@@ -37,7 +45,9 @@
     "category": "Wildlife",
     "description": "A camouflaged hide at the edge of a waterhole. Get incredibly close to elephants and other wildlife in silence.",
     "tags": ["wildlife", "nature", "quiet", "photography"],
-    "label": "hidden gem"
+    "label": "hidden gem",
+    "latitude": -17.9175,
+    "longitude": 25.8215
   },
   {
     "id": 6,
@@ -45,6 +55,8 @@
     "category": "History",
     "description": "The historic bridge connecting Zimbabwe and Zambia. Famous for bungee jumping and sunset walks.",
     "tags": ["history", "view", "adventure", "iconic"],
-    "label": "popular"
+    "label": "popular",
+    "latitude": -17.9284,
+    "longitude": 25.8573
   }
 ]
