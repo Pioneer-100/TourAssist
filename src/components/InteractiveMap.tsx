@@ -70,6 +70,11 @@ export default function InteractiveMap({
   const [mapMode, setMapMode] = useState<MapMode>('satellite');
   const tileLayerRef = useRef<L.TileLayer | null>(null);
 
+  const onToggleItineraryRef = useRef(onToggleItinerary);
+  useEffect(() => {
+    onToggleItineraryRef.current = onToggleItinerary;
+  }, [onToggleItinerary]);
+
   // 1. Initialize map on mount
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -107,7 +112,7 @@ export default function InteractiveMap({
         if (experienceId) {
           btn.addEventListener('click', (ev) => {
             ev.stopPropagation();
-            onToggleItinerary(experienceId);
+            onToggleItineraryRef.current(experienceId);
             map.closePopup();
           });
         }
@@ -120,7 +125,7 @@ export default function InteractiveMap({
         mapRef.current = null;
       }
     };
-  }, [onToggleItinerary]);
+  }, []);
 
   // 2. Dynamic Hot-Swapping Base Layers (Satellite <-> Streets <-> Dark Mode)
   useEffect(() => {

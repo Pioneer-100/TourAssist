@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ExperienceCard from '../../components/ExperienceCard';
 import { Experience } from '../../data/mockExperiences';
@@ -73,6 +73,20 @@ function DiscoverContent() {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [isScheduleMode, setIsScheduleMode] = useState<boolean>(false);
 
+  // Floating Itinerary Drawer visibility states
+  const [isItineraryOpen, setIsItineraryOpen] = useState<boolean>(false);
+  const [showItineraryPreview, setShowItineraryPreview] = useState<boolean>(false);
+  const previewTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup preview timer on unmount
+  useEffect(() => {
+    return () => {
+      if (previewTimerRef.current) {
+        clearTimeout(previewTimerRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     async function fetchRecommendations() {
       setLoading(true);
@@ -100,11 +114,16 @@ function DiscoverContent() {
     fetchRecommendations();
   }, [query]);
 
-  // Reset filter and itinerary when query changes
+  // Reset filter, itinerary, and drawer states when query changes
   useEffect(() => {
     setActiveFilter('All');
     setItinerary([]);
     setIsScheduleMode(false);
+    setIsItineraryOpen(false);
+    setShowItineraryPreview(false);
+    if (previewTimerRef.current) {
+      clearTimeout(previewTimerRef.current);
+    }
   }, [query]);
 
   // Itinerary Toggle Action
@@ -112,14 +131,31 @@ function DiscoverContent() {
     const experience = experiences.find(exp => exp.id === id);
     if (!experience) return;
 
-    setItinerary(prev => {
-      const exists = prev.some(item => item.id === id);
-      if (exists) {
-        return prev.filter(item => item.id !== id);
-      } else {
-        return [...prev, experience];
+    const exists = itinerary.some(item => item.id === id);
+    if (exists) {
+      setItinerary(prev => {
+        const next = prev.filter(item => item.id !== id);
+        if (next.length === 0) {
+          setIsItineraryOpen(false);
+          setShowItineraryPreview(false);
+          if (previewTimerRef.current) {
+            clearTimeout(previewTimerRef.current);
+          }
+        }
+        return next;
+      });
+    } else {
+      setItinerary(prev => [...prev, experience]);
+      
+      // Trigger temporary 5-second preview
+      setShowItineraryPreview(true);
+      if (previewTimerRef.current) {
+        clearTimeout(previewTimerRef.current);
       }
-    });
+      previewTimerRef.current = setTimeout(() => {
+        setShowItineraryPreview(false);
+      }, 5000);
+    }
   };
 
   // 1. Live Filter Chips mapping
@@ -162,7 +198,22 @@ function DiscoverContent() {
                       <li><a href="/#vision">Vision</a></li>
                   </ul>
               </nav>
-              <button className="btn btn-primary">My Itinerary ({itinerary.length})</button>
+              <button 
+                onClick={() => {
+                  if (itinerary.length > 0) {
+                    setIsItineraryOpen(prev => !prev);
+                    setShowItineraryPreview(false);
+                    if (previewTimerRef.current) {
+                      clearTimeout(previewTimerRef.current);
+                    }
+                  } else {
+                    alert("Your itinerary is empty! Add some stops from the recommendations or the map first.");
+                  }
+                }}
+                className={`btn ${isItineraryOpen ? 'btn-secondary' : 'btn-primary'}`}
+              >
+                {isItineraryOpen ? 'Close Itinerary' : `My Itinerary (${itinerary.length})`}
+              </button>
           </div>
       </header>
 
@@ -288,7 +339,7 @@ function DiscoverContent() {
           />
 
           {/* Floating Route Drawer Panel */}
-          {itinerary.length > 0 && (
+          {(isItineraryOpen || showItineraryPreview) && itinerary.length > 0 && (
             <div className="itinerary-drawer glass-panel animate-fade-in">
               <div className="itinerary-drawer-header">
                 <div>
@@ -296,7 +347,14 @@ function DiscoverContent() {
                   <span>{itinerary.length} stops mapped</span>
                 </div>
                 <button 
-                  onClick={() => setItinerary([])} 
+                  onClick={() => {
+                    setItinerary([]);
+                    setIsItineraryOpen(false);
+                    setShowItineraryPreview(false);
+                    if (previewTimerRef.current) {
+                      clearTimeout(previewTimerRef.current);
+                    }
+                  }} 
                   className="drawer-clear-btn"
                   title="Clear All Stops"
                 >
