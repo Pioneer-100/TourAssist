@@ -1,7 +1,17 @@
+'use client';
+
+import React, { useState } from 'react';
 import IntentSearchBar from '../components/IntentSearchBar';
 import Link from 'next/link';
+import AuthModal from '../components/AuthModal';
+import UserProfilePanel from '../components/UserProfilePanel';
+import { useAuth, AuthContextProvider } from '../context/AuthContext';
 
-export default function Home() {
+function HomeContent() {
+  const { user, profile } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isProfilePanelOpen, setIsProfilePanelOpen] = useState(false);
+
   return (
     <>
       {/* Floating Pill Navigation Navbar */}
@@ -15,9 +25,32 @@ export default function Home() {
                       <li><a href="#vision">Vision</a></li>
                   </ul>
               </nav>
-              <a href="#how-it-works" className="btn btn-primary" style={{ fontSize: '0.82rem', padding: '0.5rem 1.25rem' }}>
-                Get Started
-              </a>
+              <div className="header-actions-group" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                {user && profile ? (
+                  <button 
+                    onClick={() => setIsProfilePanelOpen(true)}
+                    className="nav-avatar-pill"
+                    title={`Logged in as ${profile.username}. View Profile Dashboard.`}
+                  >
+                    <img src={profile.avatar_url} alt="" className="nav-avatar-img" />
+                    <span className="nav-avatar-username">{profile.username}</span>
+                  </button>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => setIsAuthModalOpen(true)}
+                      className="btn btn-secondary nav-signin-pill-btn"
+                      style={{ fontSize: '0.8rem', padding: '0.5rem 1.25rem' }}
+                    >
+                      Sign In
+                    </button>
+                    <a href="#how-it-works" className="btn btn-primary" style={{ fontSize: '0.82rem', padding: '0.5rem 1.25rem' }}>
+                      Get Started
+                    </a>
+                  </>
+                )}
+              </div>
+
           </div>
       </header>
 
@@ -147,6 +180,18 @@ export default function Home() {
               &copy; {new Date().getFullYear()} TourAssist. Designed for discovery in Victoria Falls.
           </div>
       </footer>
+      {/* Auth Modals */}
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <UserProfilePanel isOpen={isProfilePanelOpen} onClose={() => setIsProfilePanelOpen(false)} />
     </>
   );
 }
+
+export default function Home() {
+  return (
+    <AuthContextProvider>
+      <HomeContent />
+    </AuthContextProvider>
+  );
+}
+

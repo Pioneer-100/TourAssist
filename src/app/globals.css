@@ -2263,4 +2263,665 @@ body:has(.schedule-timeline-header) .discover-sidebar::after {
     }
 }
 
+/* ==========================================================================
+   5. Authentication Modals & User Profiles
+   ========================================================================== */
+
+/* Auth Backdrop & Modal container */
+.auth-overlay-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(4, 7, 12, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
+    animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-glass-container {
+    background: rgba(13, 20, 32, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(14, 165, 233, 0.08);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 440px;
+    position: relative;
+    box-sizing: border-box;
+    animation: zoomIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.auth-close-btn {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auth-close-btn:hover {
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.auth-brand-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-brand-header h2 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.auth-brand-header p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Tabs */
+.auth-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.25rem;
+    border-radius: 2rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.auth-tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.6rem;
+    border-radius: 1.5rem;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.auth-tab-btn.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Feedback blocks */
+.auth-feedback-box {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.82rem;
+    margin-bottom: 1rem;
+    animation: slideDown 0.2s ease;
+}
+
+.auth-feedback-box.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.auth-feedback-box.success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #a7f3d0;
+}
+
+/* Form Styles */
+.auth-form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.auth-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-align: left;
+}
+
+.auth-form-group label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.auth-form-group input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.6rem;
+    padding: 0.75rem 1rem;
+    color: #fff;
+    font-size: 0.92rem;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.auth-form-group input:focus {
+    border-color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.15);
+}
+
+.auth-submit-btn {
+    margin-top: 0.5rem;
+    padding: 0.8rem !important;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-size: 0.92rem !important;
+}
+
+/* Social Login Divider */
+.auth-divider {
+    text-align: center;
+    position: relative;
+    margin: 1.5rem 0;
+}
+
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    z-index: 1;
+}
+
+.auth-divider span {
+    background: rgba(13, 20, 32, 0.95);
+    padding: 0 0.75rem;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Social Buttons Row */
+.auth-social-row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.auth-social-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.75rem;
+    padding: 0.65rem;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.auth-social-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.auth-social-btn:active {
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   UserProfilePanel Drawer Styles
+   ========================================================================== */
+.profile-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(4, 7, 12, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1400;
+    animation: fadeIn 0.25s ease;
+}
+
+.profile-panel-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 460px;
+    height: 100vh;
+    background: rgba(13, 20, 32, 0.6);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: -15px 0 40px rgba(0, 0, 0, 0.4);
+    padding: 2.5rem 2rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    z-index: 1450;
+    animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.profile-close-btn {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.profile-close-btn:hover {
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* Profile Capsule Header */
+.profile-header-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    border-radius: 1.25rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.profile-avatar-large {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid rgba(14, 165, 233, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.profile-status-glow {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 14px;
+    height: 14px;
+    background: #10b981;
+    border-radius: 50%;
+    border: 2.5px solid rgba(13, 20, 32, 1);
+    box-shadow: 0 0 10px #10b981;
+}
+
+.profile-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 0.25rem 0;
+}
+
+.profile-email {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.85rem 0;
+}
+
+.profile-nationality-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nationality-badge {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.35rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.btn-edit {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.75rem;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.btn-edit:hover {
+    opacity: 1;
+}
+
+.profile-nationality-form {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.profile-nationality-form input {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    border-radius: 1.5rem;
+    padding: 0.25rem 0.75rem;
+    color: #fff;
+    font-size: 0.78rem;
+    outline: none;
+}
+
+.profile-nationality-form button {
+    border: none;
+    border-radius: 50%;
+    width: 1.6rem;
+    height: 1.6rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-nationality-form .btn-save {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #10b981;
+}
+
+.profile-nationality-form .btn-cancel {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+/* User Bookings Section */
+.profile-bookings-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Important for scroll */
+}
+
+.bookings-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.bookings-section-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.bookings-section-header .btn-refresh {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: transform 0.3s ease;
+}
+
+.bookings-section-header .btn-refresh:hover {
+    color: #fff;
+    transform: rotate(180deg);
+}
+
+.bookings-loading,
+.bookings-empty-state {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.bookings-empty-state span {
+    display: block;
+    font-size: 0.72rem;
+    margin-top: 0.5rem;
+    line-height: 1.5;
+}
+
+.bookings-list-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-right: 0.25rem;
+}
+
+/* Custom Scrollbar for bookings list */
+.bookings-list-scrollable::-webkit-scrollbar {
+    width: 4px;
+}
+
+.bookings-list-scrollable::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+/* Booking Card */
+.booking-card {
+    padding: 1.2rem;
+    border-radius: 1rem;
+    text-align: left;
+}
+
+.booking-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.booking-card-place {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.booking-status-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 1.5rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.booking-status-badge.pending {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+}
+
+.booking-status-badge.confirmed {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #10b981;
+}
+
+.booking-status-badge.answered {
+    background: rgba(14, 165, 233, 0.15);
+    border: 1px solid rgba(14, 165, 233, 0.4);
+    color: var(--accent-primary);
+}
+
+.booking-card-meta {
+    display: flex;
+    gap: 0.85rem;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.booking-card-details {
+    margin: 0 0 0.85rem 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    font-style: italic;
+}
+
+.booking-assistant-response {
+    background: rgba(14, 165, 233, 0.08);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+    border-radius: 0.6rem;
+    padding: 0.75rem;
+    font-size: 0.78rem;
+    margin-bottom: 0.75rem;
+}
+
+.booking-assistant-response strong {
+    color: var(--accent-primary);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.booking-assistant-response p {
+    margin: 0;
+    color: #fff;
+    line-height: 1.45;
+}
+
+.booking-assistant-waiting {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.booking-card-date-footer {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-align: right;
+}
+
+.profile-drawer-footer {
+    margin-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 1.2rem;
+}
+
+.btn-logout {
+    width: 100%;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    padding: 0.65rem;
+    border-radius: 1.5rem;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+}
+
+/* ==========================================================================
+   Header User Pill Navigation Styles
+   ========================================================================== */
+.nav-avatar-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2rem;
+    padding: 0.28rem 1rem 0.28rem 0.28rem;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    outline: none;
+}
+
+.nav-avatar-pill:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(14, 165, 233, 0.3);
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.15);
+    transform: scale(1.03);
+}
+
+.nav-avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(14, 165, 233, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-avatar-username {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.nav-signin-pill-btn {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.nav-signin-pill-btn:hover {
+    border-color: rgba(14, 165, 233, 0.3) !important;
+    background: rgba(255,255,255,0.06) !important;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideLeft {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+
 

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Experience } from '../data/mockExperiences';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 interface ExperienceDetailDrawerProps {
   experience: Experience | null;
@@ -9,7 +11,9 @@ interface ExperienceDetailDrawerProps {
   onClose: () => void;
   isInItinerary: boolean;
   onToggleItinerary: () => void;
+  onOpenAuth?: () => void;
 }
+
 
 interface DetailInfo {
   images: string[];
@@ -227,14 +231,83 @@ export default function ExperienceDetailDrawer({
   isOpen,
   onClose,
   isInItinerary,
-  onToggleItinerary
+  onToggleItinerary,
+  onOpenAuth
 }: ExperienceDetailDrawerProps) {
   const [activeImageIdx, setActiveImageIdx] = useState(0);
+  
+  // Auth Context
+  const { user } = useAuth();
+  
+  // Assistant Engagement form states
+  const [queryType, setQueryType] = useState<'booking' | 'query'>('query');
+  const [detailsText, setDetailsText] = useState('');
+  const [bookingDate, setBookingDate] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  // Reset image carousel index when experience changes
+  // Reset image carousel index and forms when experience changes
   useEffect(() => {
     setActiveImageIdx(0);
+    setDetailsText('');
+    setBookingDate('');
+    setSubmitError('');
+    setSubmitSuccess(false);
   }, [experience]);
+
+  useEffect(() => {
+    if (submitSuccess) {
+      const timer = setTimeout(() => setSubmitSuccess(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitSuccess]);
+
+  const handleSubmitAssistantRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!experience) return;
+    
+    if (!user) {
+      if (onOpenAuth) onOpenAuth();
+      return;
+    }
+
+    if (!detailsText.trim()) {
+      setSubmitError('Please enter details of your query or booking.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError('');
+    setSubmitSuccess(false);
+
+    try {
+      const { error } = await supabase
+        .from('bookings_and_queries')
+        .insert({
+          user_id: user.id,
+          place_name: experience.title,
+          type: queryType,
+          details: detailsText.trim(),
+          booking_date: queryType === 'booking' && bookingDate ? bookingDate : null,
+          status: 'pending'
+        });
+
+      if (error) {
+        setSubmitError(error.message || 'Failed to submit inquiry. Please try again.');
+      } else {
+        setSubmitSuccess(true);
+        setDetailsText('');
+        setBookingDate('');
+      }
+    } catch (err) {
+      console.error('Error submitting assistant inquiry:', err);
+      setSubmitError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
   if (!experience) return null;
 
@@ -383,6 +456,103 @@ export default function ExperienceDetailDrawer({
               <h4>TRAVELER PRO-TIP</h4>
             </div>
             <p className="tip-text">{details.proTip}</p>
+          </div>
+
+          {/* Assistant Engagement Panel */}
+          <div className="section-block assistant-block" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+            <h3>💁 Contact Local Guide & Assistant</h3>
+            
+            {!user ? (
+              <div className="assistant-lock-card glass-panel" style={{ padding: '2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.8rem' }}>
+                <div className="lock-icon" style={{ fontSize: '2.5rem' }}>🔒</div>
+                <h4 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 700 }}>Unlock Direct Assistant Channel</h4>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, maxWidth: '400px' }}>
+                  Sign in to ask questions, request special accommodations, or reserve booking slots directly with local guides and place managers.
+                </p>
+                <button 
+                  type="button" 
+                  onClick={onOpenAuth} 
+                  className="btn btn-primary btn-auth-trigger"
+                  style={{ marginTop: '0.5rem', padding: '0.6rem 1.5rem', fontSize: '0.85rem' }}
+                >
+                  Sign In to Engage
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmitAssistantRequest} className="assistant-active-card glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                {submitSuccess && (
+                  <div className="assistant-form-success" style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: '0.5rem', padding: '1rem', color: '#10b981', display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.88rem' }}>
+                    <span className="success-icon" style={{ fontWeight: 'bold' }}>✓</span>
+                    <span>Inquiry submitted! Our local assistant will respond shortly. Track it in your Profile.</span>
+                  </div>
+                )}
+                
+                {submitError && (
+                  <div className="assistant-form-error" style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '0.5rem', padding: '1rem', color: '#ef4444', fontSize: '0.88rem' }}>
+                    <span>⚠️ {submitError}</span>
+                  </div>
+                )}
+
+                <div className="assistant-toggle-row" style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '2rem', padding: '0.25rem' }}>
+                  <button
+                    type="button"
+                    className={`toggle-btn ${queryType === 'query' ? 'active' : ''}`}
+                    onClick={() => { setQueryType('query'); setSubmitError(''); }}
+                    style={{ flex: 1, border: 'none', background: queryType === 'query' ? 'rgba(255, 255, 255, 0.15)' : 'transparent', color: '#fff', padding: '0.5rem 1rem', borderRadius: '1.5rem', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, transition: 'all 0.2s' }}
+                  >
+                    💬 Ask Question
+                  </button>
+                  <button
+                    type="button"
+                    className={`toggle-btn ${queryType === 'booking' ? 'active' : ''}`}
+                    onClick={() => { setQueryType('booking'); setSubmitError(''); }}
+                    style={{ flex: 1, border: 'none', background: queryType === 'booking' ? 'rgba(255, 255, 255, 0.15)' : 'transparent', color: '#fff', padding: '0.5rem 1rem', borderRadius: '1.5rem', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, transition: 'all 0.2s' }}
+                  >
+                    📅 Request Booking
+                  </button>
+                </div>
+
+                {queryType === 'booking' && (
+                  <div className="assistant-form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <label htmlFor="booking-date" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Preferred Booking Date</label>
+                    <input
+                      id="booking-date"
+                      type="date"
+                      required
+                      value={bookingDate}
+                      onChange={(e) => setBookingDate(e.target.value)}
+                      disabled={isSubmitting}
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', padding: '0.75rem', color: '#fff', outline: 'none' }}
+                    />
+                  </div>
+                )}
+
+                <div className="assistant-form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <label htmlFor="assistant-details" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    {queryType === 'booking' ? 'Booking Details & Special Requests' : 'Your Message / Inquiry'}
+                  </label>
+                  <textarea
+                    id="assistant-details"
+                    rows={3}
+                    placeholder={queryType === 'booking' ? 'e.g. Booking for 4 people. Are high-chairs available? Do you support gluten-free alternatives?' : 'e.g. Is there shade? What is the best time of day to avoid crowds?'}
+                    required
+                    value={detailsText}
+                    onChange={(e) => setDetailsText(e.target.value)}
+                    disabled={isSubmitting}
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', padding: '0.75rem', color: '#fff', outline: 'none', resize: 'vertical', fontFamily: 'inherit', fontSize: '0.88rem' }}
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="btn btn-primary assistant-submit-btn" 
+                  disabled={isSubmitting}
+                  style={{ alignSelf: 'flex-start', padding: '0.75rem 2rem', fontSize: '0.88rem' }}
+                >
+                  {isSubmitting ? 'Sending Request...' : queryType === 'booking' ? 'Request Reservation' : 'Send Message'}
+                </button>
+              </form>
+            )}
           </div>
 
           {/* Reviews List */}

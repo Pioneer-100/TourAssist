@@ -7,6 +7,10 @@ import ExperienceDetailDrawer from '../../components/ExperienceDetailDrawer';
 import { Experience } from '../../data/mockExperiences';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import AuthModal from '../../components/AuthModal';
+import UserProfilePanel from '../../components/UserProfilePanel';
+import { useAuth, AuthContextProvider } from '../../context/AuthContext';
+
 
 // Load map on the client-side only to prevent Next.js SSR build errors (window is not defined)
 const InteractiveMap = dynamic(() => import('../../components/InteractiveMap'), {
@@ -81,6 +85,12 @@ function DiscoverContent() {
 
   // Experience Detail Drawer state
   const [selectedDetailExperience, setSelectedDetailExperience] = useState<Experience | null>(null);
+
+  // Auth & Profile Panel states
+  const { user, profile } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isProfilePanelOpen, setIsProfilePanelOpen] = useState(false);
+
 
   // Cleanup preview timer on unmount
   useEffect(() => {
@@ -203,22 +213,45 @@ function DiscoverContent() {
                       <li><a href="/#vision">Vision</a></li>
                   </ul>
               </nav>
-              <button 
-                onClick={() => {
-                  if (itinerary.length > 0) {
-                    setIsItineraryOpen(prev => !prev);
-                    setShowItineraryPreview(false);
-                    if (previewTimerRef.current) {
-                      clearTimeout(previewTimerRef.current);
+              <div className="header-actions-group" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <button 
+                  onClick={() => {
+                    if (itinerary.length > 0) {
+                      setIsItineraryOpen(prev => !prev);
+                      setShowItineraryPreview(false);
+                      if (previewTimerRef.current) {
+                        clearTimeout(previewTimerRef.current);
+                      }
+                    } else {
+                      alert("Your itinerary is empty! Add some stops from the recommendations or the map first.");
                     }
-                  } else {
-                    alert("Your itinerary is empty! Add some stops from the recommendations or the map first.");
-                  }
-                }}
-                className={`btn ${isItineraryOpen ? 'btn-secondary' : 'btn-primary'}`}
-              >
-                {isItineraryOpen ? 'Close Itinerary' : `My Itinerary (${itinerary.length})`}
-              </button>
+                  }}
+                  className={`btn ${isItineraryOpen ? 'btn-secondary' : 'btn-primary'}`}
+                  style={{ fontSize: '0.8rem', padding: '0.5rem 1.25rem' }}
+                >
+                  {isItineraryOpen ? 'Close Itinerary' : `My Itinerary (${itinerary.length})`}
+                </button>
+
+                {user && profile ? (
+                  <button 
+                    onClick={() => setIsProfilePanelOpen(true)}
+                    className="nav-avatar-pill"
+                    title={`Logged in as ${profile.username}. View Profile Dashboard.`}
+                  >
+                    <img src={profile.avatar_url} alt="" className="nav-avatar-img" />
+                    <span className="nav-avatar-username">{profile.username}</span>
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className="btn btn-secondary nav-signin-pill-btn"
+                    style={{ fontSize: '0.8rem', padding: '0.5rem 1.25rem' }}
+                  >
+                    Sign In
+                  </button>
+                )}
+              </div>
+
           </div>
       </header>
 
@@ -432,15 +465,31 @@ function DiscoverContent() {
             handleToggleItinerary(selectedDetailExperience.id);
           }
         }}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+      />
+
+      {/* Authentication and Dashboard Overlays */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
+
+      <UserProfilePanel 
+        isOpen={isProfilePanelOpen} 
+        onClose={() => setIsProfilePanelOpen(false)} 
       />
     </div>
+
   );
 }
 
 export default function DiscoverPage() {
   return (
-    <Suspense fallback={<div className="discover-page"><div className="discover-header"><h1>Loading Discoveries...</h1></div></div>}>
-      <DiscoverContent />
-    </Suspense>
+    <AuthContextProvider>
+      <Suspense fallback={<div className="discover-page"><div className="discover-header"><h1>Loading Discoveries...</h1></div></div>}>
+        <DiscoverContent />
+      </Suspense>
+    </AuthContextProvider>
   );
 }
+
