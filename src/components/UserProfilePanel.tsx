@@ -93,97 +93,100 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
           </svg>
         </button>
 
-        {/* Profile Card Header */}
-        <div className="profile-header-card glass-panel">
-          <div className="profile-avatar-wrapper">
-            <img src={profile.avatar_url} alt={`${profile.username}'s avatar`} className="profile-avatar-large" />
-            <span className="profile-status-glow"></span>
+        {/* Scrollable content container */}
+        <div className="profile-drawer-scroll-content">
+          {/* Profile Card Header */}
+          <div className="profile-header-card glass-panel">
+            <div className="profile-avatar-wrapper">
+              <img src={profile.avatar_url} alt={`${profile.username}'s avatar`} className="profile-avatar-large" />
+              <span className="profile-status-glow"></span>
+            </div>
+
+            <h3 className="profile-title">{profile.username}</h3>
+            <p className="profile-email">{profile.email}</p>
+
+            <div className="profile-nationality-row">
+              {isEditing ? (
+                <form onSubmit={handleUpdateProfile} className="profile-nationality-form">
+                  <input 
+                    type="text" 
+                    value={newNationality}
+                    onChange={(e) => setNewNationality(e.target.value)}
+                    disabled={isSaving}
+                    placeholder="Enter Nationality"
+                    required
+                  />
+                  <button type="submit" className="btn-save" disabled={isSaving}>✓</button>
+                  <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)}>✗</button>
+                </form>
+              ) : (
+                <>
+                  <span className="nationality-badge">🗺️ {profile.nationality}</span>
+                  <button className="btn-edit" onClick={() => setIsEditing(true)} title="Change Nationality">
+                    ✏️
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
-          <h3 className="profile-title">{profile.username}</h3>
-          <p className="profile-email">{profile.email}</p>
+          {/* User Bookings and Queries Section */}
+          <div className="profile-bookings-section">
+            <div className="bookings-section-header">
+              <h4>My Bookings & Inquiries</h4>
+              <button className="btn-refresh" onClick={fetchBookings} title="Reload list">
+                🔄
+              </button>
+            </div>
 
-          <div className="profile-nationality-row">
-            {isEditing ? (
-              <form onSubmit={handleUpdateProfile} className="profile-nationality-form">
-                <input 
-                  type="text" 
-                  value={newNationality}
-                  onChange={(e) => setNewNationality(e.target.value)}
-                  disabled={isSaving}
-                  placeholder="Enter Nationality"
-                  required
-                />
-                <button type="submit" className="btn-save" disabled={isSaving}>✓</button>
-                <button type="button" className="btn-cancel" onClick={() => setIsEditing(false)}>✗</button>
-              </form>
+            {isLoadingBookings ? (
+              <div className="bookings-loading">Loading inquiries...</div>
+            ) : bookings.length === 0 ? (
+              <div className="bookings-empty-state">
+                <p>You haven't contacted any assistants yet.</p>
+                <span>Explore places and tap "Contact Assistant" to make a reservation or ask questions!</span>
+              </div>
             ) : (
-              <>
-                <span className="nationality-badge">🗺️ {profile.nationality}</span>
-                <button className="btn-edit" onClick={() => setIsEditing(true)} title="Change Nationality">
-                  ✏️
-                </button>
-              </>
+              <div className="bookings-list-scrollable">
+                {bookings.map((item) => (
+                  <div key={item.id} className="booking-card glass-panel">
+                    <div className="booking-card-top">
+                      <span className="booking-card-place">{item.place_name}</span>
+                      <span className={`booking-status-badge ${item.status}`}>
+                        {item.status}
+                      </span>
+                    </div>
+
+                    <div className="booking-card-meta">
+                      <span className="booking-card-type">
+                        {item.type === 'booking' ? '📅 Booking' : '💬 Inquiry'}
+                      </span>
+                      {item.booking_date && (
+                        <span className="booking-card-date">Date: {item.booking_date}</span>
+                      )}
+                    </div>
+
+                    <p className="booking-card-details">"{item.details}"</p>
+
+                    {item.assistant_response ? (
+                      <div className="booking-assistant-response">
+                        <strong>💁 Assistant Reply:</strong>
+                        <p>{item.assistant_response}</p>
+                      </div>
+                    ) : (
+                      <div className="booking-assistant-waiting">
+                        <span>⏳ Awaiting local guide response...</span>
+                      </div>
+                    )}
+
+                    <div className="booking-card-date-footer">
+                      Sent on {new Date(item.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-        </div>
-
-        {/* User Bookings and Queries Section */}
-        <div className="profile-bookings-section">
-          <div className="bookings-section-header">
-            <h4>My Bookings & Inquiries</h4>
-            <button className="btn-refresh" onClick={fetchBookings} title="Reload list">
-              🔄
-            </button>
-          </div>
-
-          {isLoadingBookings ? (
-            <div className="bookings-loading">Loading inquiries...</div>
-          ) : bookings.length === 0 ? (
-            <div className="bookings-empty-state">
-              <p>You haven't contacted any assistants yet.</p>
-              <span>Explore places and tap "Contact Assistant" to make a reservation or ask questions!</span>
-            </div>
-          ) : (
-            <div className="bookings-list-scrollable">
-              {bookings.map((item) => (
-                <div key={item.id} className="booking-card glass-panel">
-                  <div className="booking-card-top">
-                    <span className="booking-card-place">{item.place_name}</span>
-                    <span className={`booking-status-badge ${item.status}`}>
-                      {item.status}
-                    </span>
-                  </div>
-
-                  <div className="booking-card-meta">
-                    <span className="booking-card-type">
-                      {item.type === 'booking' ? '📅 Booking' : '💬 Inquiry'}
-                    </span>
-                    {item.booking_date && (
-                      <span className="booking-card-date">Date: {item.booking_date}</span>
-                    )}
-                  </div>
-
-                  <p className="booking-card-details">"{item.details}"</p>
-
-                  {item.assistant_response ? (
-                    <div className="booking-assistant-response">
-                      <strong>💁 Assistant Reply:</strong>
-                      <p>{item.assistant_response}</p>
-                    </div>
-                  ) : (
-                    <div className="booking-assistant-waiting">
-                      <span>⏳ Awaiting local guide response...</span>
-                    </div>
-                  )}
-
-                  <div className="booking-card-date-footer">
-                    Sent on {new Date(item.created_at).toLocaleDateString()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Footer actions */}
