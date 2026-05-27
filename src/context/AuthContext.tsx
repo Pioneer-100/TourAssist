@@ -19,7 +19,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, username: string, nationality: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signInWithSocial: (provider: 'google' | 'github') => Promise<{ error: any }>;
+  signInWithSocial: (provider: 'google' | 'github' | 'linkedin' | 'facebook' | 'twitter') => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
   refreshProfile: () => Promise<void>;
 }
@@ -169,7 +169,7 @@ export function AuthContextProvider({ children }: { children: React.ReactNode })
     }
   };
 
-  const signInWithSocial = async (provider: 'google' | 'github') => {
+  const signInWithSocial = async (provider: 'google' | 'github' | 'linkedin' | 'facebook' | 'twitter') => {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,

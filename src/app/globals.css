@@ -2459,12 +2459,12 @@ body:has(.schedule-timeline-header) .discover-sidebar::after {
 
 /* Social Buttons Row */
 .auth-social-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     gap: 0.75rem;
 }
 
 .auth-social-btn {
-    flex: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2474,15 +2474,65 @@ body:has(.schedule-timeline-header) .discover-sidebar::after {
     padding: 0.65rem;
     color: #fff;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 600;
     transition: all 0.2s ease;
 }
 
+.auth-social-btn.google-btn {
+    grid-column: span 3;
+}
+
+.auth-social-btn.github-btn {
+    grid-column: span 3;
+}
+
+.auth-social-btn.linkedin-btn {
+    grid-column: span 2;
+}
+
+.auth-social-btn.facebook-btn {
+    grid-column: span 2;
+}
+
+.auth-social-btn.x-btn {
+    grid-column: span 2;
+}
+
 .auth-social-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
+}
+
+.auth-social-btn.google-btn:hover {
+    background: rgba(234, 67, 53, 0.08);
+    border-color: rgba(234, 67, 53, 0.3);
+    box-shadow: 0 0 12px rgba(234, 67, 53, 0.15);
+}
+
+.auth-social-btn.github-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.auth-social-btn.linkedin-btn:hover {
+    background: rgba(10, 102, 194, 0.1);
+    border-color: rgba(10, 102, 194, 0.4);
+    color: #70b5f9;
+    box-shadow: 0 0 12px rgba(10, 102, 194, 0.2);
+}
+
+.auth-social-btn.facebook-btn:hover {
+    background: rgba(24, 119, 242, 0.1);
+    border-color: rgba(24, 119, 242, 0.4);
+    color: #6da7fc;
+    box-shadow: 0 0 12px rgba(24, 119, 242, 0.2);
+}
+
+.auth-social-btn.x-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
 }
 
 .auth-social-btn:active {
