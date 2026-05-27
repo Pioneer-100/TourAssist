@@ -31,15 +31,22 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setSuccessMessage('');
     setIsLoading(true);
 
+    console.log("🔑 [Auth Form Submit] Started");
+    console.log("Email:", email.trim());
+    console.log("Sign Up Mode:", isSignUpMode);
+
     try {
       if (isSignUpMode) {
         if (!username.trim() || !nationality.trim()) {
           setErrorMessage('Please fill in username and nationality.');
           setIsLoading(false);
+          console.warn("⚠️ Username or Nationality empty in SignUp");
           return;
         }
 
+        console.log("Calling signUp provider...");
         const { error } = await signUp(email.trim(), password, username.trim(), nationality.trim());
+        console.log("signUp returned, error:", error);
         if (error) {
           setErrorMessage(error.message || 'Registration failed. Please try again.');
         } else {
@@ -51,20 +58,25 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           }, 3000);
         }
       } else {
+        console.log("Calling signIn provider...");
         const { error } = await signIn(email.trim(), password);
+        console.log("signIn returned, error:", error);
         if (error) {
           setErrorMessage(error.message || 'Invalid email or password.');
         } else {
+          console.log("Sign in successful, triggering onClose()");
           onClose(); // Close modal on successful sign in
         }
       }
     } catch (err) {
-      console.error('Auth submit exception:', err);
+      console.error('❌ Auth submit exception:', err);
       setErrorMessage('An unexpected error occurred. Please try again.');
     } finally {
+      console.log("🏁 [Auth Form Submit] finished block executed, resetting isLoading");
       setIsLoading(false);
     }
   };
+
 
   const handleSocialLogin = async (provider: 'google' | 'github') => {
     setErrorMessage('');
