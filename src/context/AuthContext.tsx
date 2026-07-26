@@ -10,6 +10,7 @@ export interface Profile {
   email: string;
   nationality: string;
   avatar_url: string;
+  role?: string;
   created_at: string;
 }
 

@@ -84,7 +84,13 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
 
   return (
     <div className="profile-panel-overlay" onClick={onClose}>
-      <div className="profile-panel-drawer" onClick={(e) => e.stopPropagation()}>
+      <div 
+        className="profile-panel-drawer" 
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="User Profile Dashboard"
+      >
         {/* Drawer Close Button */}
         <button className="profile-close-btn" onClick={onClose} aria-label="Close profile panel">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

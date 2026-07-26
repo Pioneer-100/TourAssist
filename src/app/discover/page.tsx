@@ -78,6 +78,10 @@ function DiscoverContent() {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [isScheduleMode, setIsScheduleMode] = useState<boolean>(false);
 
+  // Mobile Navigation & View Mode States ('list' | 'map')
+  const [mobileViewMode, setMobileViewMode] = useState<'list' | 'map'>('list');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+
   // Floating Itinerary Drawer visibility states
   const [isItineraryOpen, setIsItineraryOpen] = useState<boolean>(false);
   const [showItineraryPreview, setShowItineraryPreview] = useState<boolean>(false);
@@ -90,7 +94,6 @@ function DiscoverContent() {
   const { user, profile } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isProfilePanelOpen, setIsProfilePanelOpen] = useState(false);
-
 
   // Cleanup preview timer on unmount
   useEffect(() => {
@@ -250,15 +253,78 @@ function DiscoverContent() {
                     Sign In
                   </button>
                 )}
-              </div>
 
+                {/* Mobile Menu Hamburger Toggle */}
+                <button 
+                  className="mobile-menu-toggle"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  aria-label="Toggle Navigation Menu"
+                  aria-expanded={isMobileMenuOpen}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    {isMobileMenuOpen ? (
+                      <>
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </>
+                    ) : (
+                      <>
+                        <line x1="4" y1="6" x2="20" y2="6" />
+                        <line x1="4" y1="12" x2="20" y2="12" />
+                        <line x1="4" y1="18" x2="20" y2="18" />
+                      </>
+                    )}
+                  </svg>
+                </button>
+              </div>
           </div>
       </header>
 
-      {/* Main Discover Layout */}
-      <div className="discover-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1.5rem' }}>
+      {/* Mobile Slide-Down Menu Drawer */}
+      {isMobileMenuOpen && (
+        <div className="mobile-menu-drawer">
+          <ul>
+            <li><a href="/#how-it-works" onClick={() => setIsMobileMenuOpen(false)}>How It Works</a></li>
+            <li><a href="/#features" onClick={() => setIsMobileMenuOpen(false)}>Features</a></li>
+            <li><a href="/#vision" onClick={() => setIsMobileMenuOpen(false)}>Vision</a></li>
+          </ul>
+          <div className="mobile-menu-actions">
+            <button 
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                if (itinerary.length > 0) {
+                  setIsItineraryOpen(true);
+                } else {
+                  alert("Your itinerary is empty! Add stops from recommendations or map first.");
+                }
+              }}
+              className="btn btn-primary"
+            >
+              My Itinerary ({itinerary.length})
+            </button>
+            {user && profile ? (
+              <button 
+                onClick={() => { setIsProfilePanelOpen(true); setIsMobileMenuOpen(false); }}
+                className="btn btn-secondary"
+              >
+                Profile ({profile.username})
+              </button>
+            ) : (
+              <button 
+                onClick={() => { setIsAuthModalOpen(true); setIsMobileMenuOpen(false); }}
+                className="btn btn-secondary"
+              >
+                Sign In
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Main Discover Header */}
+      <div className="discover-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1>Your Personalized Discoveries</h1>
+          <h1 className="section-heading-fluid">Your Personalized Discoveries</h1>
           {query && <p className="query-text">Showing results for: <strong>"{query}"</strong></p>}
         </div>
 
@@ -269,14 +335,16 @@ function DiscoverContent() {
           style={{ transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
         >
           {isScheduleMode ? (
-            <>⏱️ Timeline View Active</>
+            <>⏱️ Timeline Active</>
           ) : (
-            <>⚡ Generate Smart Day-Plan</>
+            <>⚡ Generate Day-Plan</>
           )}
         </button>
       </div>
 
-      <div className="discover-layout">
+      {/* Main Responsive Discover Layout with Mobile List/Map Modes */}
+      <div className={`discover-layout ${mobileViewMode === 'list' ? 'mobile-view-list' : 'mobile-view-map'}`}>
+
         
         {/* Left Pane: Experience Cards */}
         <div className="discover-sidebar">
@@ -452,6 +520,22 @@ function DiscoverContent() {
           )}
         </div>
         
+      </div>
+
+      {/* Floating Mobile View Switcher (List vs Map) */}
+      <div className="mobile-view-switcher">
+        <button 
+          className={mobileViewMode === 'list' ? 'active' : ''}
+          onClick={() => setMobileViewMode('list')}
+        >
+          📋 Recommendations List
+        </button>
+        <button 
+          className={mobileViewMode === 'map' ? 'active' : ''}
+          onClick={() => setMobileViewMode('map')}
+        >
+          🗺️ Interactive Map
+        </button>
       </div>
 
       {/* Immersive Place Detail Drawer */}

@@ -11,6 +11,7 @@ function HomeContent() {
   const { user, profile } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isProfilePanelOpen, setIsProfilePanelOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <>
@@ -49,21 +50,80 @@ function HomeContent() {
                     </a>
                   </>
                 )}
-              </div>
 
+                {/* Mobile Menu Hamburger Button */}
+                <button 
+                  className="mobile-menu-toggle"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  aria-label="Toggle Navigation Menu"
+                  aria-expanded={isMobileMenuOpen}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    {isMobileMenuOpen ? (
+                      <>
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </>
+                    ) : (
+                      <>
+                        <line x1="4" y1="6" x2="20" y2="6" />
+                        <line x1="4" y1="12" x2="20" y2="12" />
+                        <line x1="4" y1="18" x2="20" y2="18" />
+                      </>
+                    )}
+                  </svg>
+                </button>
+              </div>
           </div>
       </header>
+
+      {/* Mobile Slide-Down Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="mobile-menu-drawer">
+          <ul>
+            <li><a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)}>How It Works</a></li>
+            <li><a href="#features" onClick={() => setIsMobileMenuOpen(false)}>Features</a></li>
+            <li><a href="#vision" onClick={() => setIsMobileMenuOpen(false)}>Vision</a></li>
+          </ul>
+          <div className="mobile-menu-actions">
+            {user && profile ? (
+              <button 
+                onClick={() => { setIsProfilePanelOpen(true); setIsMobileMenuOpen(false); }}
+                className="btn btn-secondary"
+              >
+                Profile Dashboard ({profile.username})
+              </button>
+            ) : (
+              <>
+                <button 
+                  onClick={() => { setIsAuthModalOpen(true); setIsMobileMenuOpen(false); }}
+                  className="btn btn-secondary"
+                >
+                  Sign In / Register
+                </button>
+                <a 
+                  href="#how-it-works" 
+                  onClick={() => setIsMobileMenuOpen(false)} 
+                  className="btn btn-primary"
+                >
+                  Get Started
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="hero">
           <img src="/assets/hero_bg.png" alt="Majestic aerial view of Victoria Falls at sunset" className="hero-bg landing-hero-bg" />
           <div className="hero-overlay landing-hero-overlay"></div>
           <div className="hero-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h1 style={{ fontSize: '4.8rem', fontWeight: 800, letterSpacing: '-2px', textShadow: '0 10px 40px rgba(0,0,0,0.5)', lineHeight: 1.15 }}>
+              <h1 className="hero-heading-fluid" style={{ fontWeight: 800, textShadow: '0 10px 40px rgba(0,0,0,0.5)' }}>
                 Experience-First <br/>
                 <span className="text-gradient" style={{ display: 'inline-block', position: 'relative' }}>Victoria Falls</span>
               </h1>
-              <p style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)', marginTop: '1.5rem', marginBottom: '2.5rem' }}>
+              <p className="subheading-fluid" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)', marginTop: '1.5rem', marginBottom: '2.5rem' }}>
                 Discover authentic places, hidden gems, and meaningful experiences tailored to your personal intent. Don't just visit—experience.
               </p>
               
@@ -74,7 +134,7 @@ function HomeContent() {
       {/* How It Works */}
       <section id="how-it-works" className="how-it-works">
           <div className="section-header">
-              <h2 style={{ fontSize: '2.8rem', fontWeight: 800, letterSpacing: '-1px' }}>How It Works</h2>
+              <h2 className="section-heading-fluid" style={{ fontWeight: 800 }}>How It Works</h2>
               <p style={{ marginTop: '0.5rem' }}>
                 The platform acts as an intelligent experience-matching assistant, prioritizing authenticity and personal meaning over generic itineraries.
               </p>
@@ -108,7 +168,7 @@ function HomeContent() {
       <section id="features" className="features">
           <div className="features-container">
               <div className="features-content">
-                  <h2 style={{ fontSize: '2.8rem', fontWeight: 800, letterSpacing: '-1px', lineHeight: 1.15 }}>
+                  <h2 className="section-heading-fluid" style={{ fontWeight: 800 }}>
                     Built for Authenticity, <br/>
                     <span className="text-gradient">Designed for Discovery</span>
                   </h2>

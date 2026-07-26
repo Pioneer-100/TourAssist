@@ -331,7 +331,16 @@ export default function ExperienceDetailDrawer({
       />
 
       {/* The Detail Drawer Panel itself */}
-      <div className={`detail-drawer glass-panel ${isOpen ? 'open' : ''}`}>
+      <div 
+        className={`detail-drawer glass-panel ${isOpen ? 'open' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${experience.title} details`}
+      >
+        {/* Mobile Swipe Handle */}
+        <div style={{ width: '100%', height: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'transparent', flexShrink: 0 }}>
+          <div style={{ width: '36px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.25)', marginTop: '4px' }} />
+        </div>
         
         {/* Carousel / Close floating bar */}
         <div className="drawer-hero-wrapper">

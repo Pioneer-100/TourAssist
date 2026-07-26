@@ -94,20 +94,46 @@ export default function IntentSearchBar({ autoFocus = false }: { autoFocus?: boo
 
 
   return (
-    <form onSubmit={handleSearch} className="search-bar" style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+    <form onSubmit={handleSearch} className="search-bar" style={{ width: '100%', maxWidth: '800px', margin: '0 auto', position: 'relative' }}>
       <input 
         type="text" 
         placeholder={isListening ? "Listening... Speak your dream trip experience now..." : "What do you want to experience? (e.g., local food, hidden views...)"}
         autoFocus={autoFocus}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        aria-label="Describe travel intent or experience"
       />
+
+      {query && (
+        <button
+          type="button"
+          onClick={() => setQuery('')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-secondary)',
+            fontSize: '1rem',
+            padding: '0 0.5rem',
+            cursor: 'pointer',
+            alignSelf: 'center',
+            minHeight: '44px',
+            display: 'flex',
+            alignItems: 'center'
+          }}
+          title="Clear Search"
+          aria-label="Clear input search text"
+        >
+          ✕
+        </button>
+      )}
+
       {micSupported && (
         <button
           type="button"
           onClick={toggleListening}
           className={`search-bar-mic ${isListening ? 'listening' : ''}`}
           title={isListening ? "Stop listening" : "Explain experience via Voice Input"}
+          aria-label={isListening ? "Stop voice listening" : "Start voice search"}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '1.25rem', height: '1.25rem' }}>
             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />

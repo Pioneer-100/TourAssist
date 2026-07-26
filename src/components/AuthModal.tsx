@@ -96,7 +96,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <div className="auth-overlay-backdrop" onClick={onClose}>
-      <div className="auth-glass-container" onClick={(e) => e.stopPropagation()}>
+      <div 
+        className="auth-glass-container" 
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="User Authentication Modal"
+      >
         {/* Close Button */}
         <button className="auth-close-btn" onClick={onClose} aria-label="Close authentication modal">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
