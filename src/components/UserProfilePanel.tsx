@@ -184,8 +184,41 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
                         <span>⏳ Awaiting local guide response...</span>
                       </div>
                     )}
+                    {item.payment_status === 'paid' ? (
+                      <div className="mt-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-1.5 px-3 rounded-lg text-center">
+                        ✓ Deposit Paid ($50)
+                      </div>
+                    ) : item.type === 'booking' ? (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch('/api/checkout', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                bookingId: item.id,
+                                placeName: item.place_name,
+                                userEmail: user.email,
+                                amountCents: 5000,
+                              }),
+                            });
+                            const data = await res.json();
+                            if (data.url) {
+                              window.location.href = data.url;
+                            } else {
+                              alert('Checkout error: ' + (data.error || 'Could not launch payment'));
+                            }
+                          } catch (e) {
+                            console.error('Payment checkout failed:', e);
+                          }
+                        }}
+                        className="mt-2 w-full text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 py-2 px-3 rounded-lg transition-colors text-center cursor-pointer"
+                      >
+                        💳 Pay Deposit ($50.00)
+                      </button>
+                    ) : null}
 
-                    <div className="booking-card-date-footer">
+                    <div className="booking-card-date-footer mt-2">
                       Sent on {new Date(item.created_at).toLocaleDateString()}
                     </div>
                   </div>
