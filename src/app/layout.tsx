@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthContextProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "TourAssist - Experience Victoria Falls",
@@ -17,7 +18,9 @@ export default function RootLayout({
         <div className="bg-orb bg-orb-1"></div>
         <div className="bg-orb bg-orb-2"></div>
         <div className="bg-orb bg-orb-3"></div>
-        {children}
+        <AuthContextProvider>
+          {children}
+        </AuthContextProvider>
       </body>
     </html>
   );
