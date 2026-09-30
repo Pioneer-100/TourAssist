@@ -222,6 +222,9 @@ function DiscoverContent() {
                     if (itinerary.length > 0) {
                       setIsItineraryOpen(prev => !prev);
                       setShowItineraryPreview(false);
+                      if (window.innerWidth <= 900) {
+                        setMobileViewMode('map');
+                      }
                       if (previewTimerRef.current) {
                         clearTimeout(previewTimerRef.current);
                       }
